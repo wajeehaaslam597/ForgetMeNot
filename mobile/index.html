@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7B6FD4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="ForgetMeNot — caregiver & patient companion (mobile)">
+<title>ForgetMeNot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --lavender:   #7B6FD4;
+    --lavender-lt:#EAE8F9;
+    --lavender-dk:#4F45A0;
+    --mint:       #2DB891;
+    --mint-lt:    #D6F5EC;
+    --amber:      #E8972A;
+    --amber-lt:   #FDF0D8;
+    --coral:      #E05A44;
+    --coral-lt:   #FAEAE7;
+    --sky:        #3B95D9;
+    --sky-lt:     #E5F2FC;
+    --bg:         #F5F3FF;
+    --surface:    #FFFFFF;
+    --card:       #FFFFFF;
+    --text:       #1C1B2E;
+    --muted:      #6B6880;
+    --hint:       #A8A5B8;
+    --border:     rgba(123,111,212,0.15);
+    --shadow:     0 2px 12px rgba(123,111,212,0.12);
+    --radius:     18px;
+    --radius-sm:  10px;
+    --bottom-nav: 64px;
+    --font:       'DM Sans', sans-serif;
+    --serif:      'DM Serif Display', serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-width: 420px;
+    margin: 0 auto;
+    position: relative;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 20px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-title { font-family: var(--serif); font-size: 22px; color: var(--lavender-dk); }
+  .topbar-sub   { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--lavender); display: flex; align-items: center;
+    justify-content: center; font-weight: 600; font-size: 13px; color: #fff;
+    cursor: pointer; flex-shrink: 0;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; padding: 0 0 calc(var(--bottom-nav) + 16px); min-height: 100vh; }
+  .screen.active { display: block; }
+
+  .scroll-area { overflow-y: auto; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 420px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; height: var(--bottom-nav);
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px;
+    cursor: pointer; transition: color 0.2s;
+    color: var(--hint); font-size: 10px; font-weight: 500;
+    border: none; background: none; padding: 0;
+  }
+  .nav-item.active { color: var(--lavender); }
+  .nav-icon { font-size: 20px; line-height: 1; }
+
+  /* ── SECTION HEADER ── */
+  .section-hd {
+    padding: 20px 20px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-hd h2 { font-family: var(--serif); font-size: 20px; color: var(--text); }
+  .badge-count {
+    background: var(--lavender); color: #fff;
+    border-radius: 20px; font-size: 11px; font-weight: 600;
+    padding: 2px 8px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    margin: 0 16px 12px; padding: 16px;
+    transition: transform 0.15s;
+  }
+  .card:active { transform: scale(0.98); }
+
+  /* ── PATIENT HERO ── */
+  .patient-hero {
+    margin: 16px;
+    background: linear-gradient(135deg, var(--lavender-dk) 0%, var(--lavender) 100%);
+    border-radius: var(--radius); padding: 20px; color: #fff;
+    position: relative; overflow: hidden;
+  }
+  .patient-hero::after {
+    content: '';
+    position: absolute; right: -20px; top: -20px;
+    width: 120px; height: 120px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .patient-hero .name { font-family: var(--serif); font-size: 24px; }
+  .patient-hero .info { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+  .patient-hero .stats {
+    display: flex; gap: 16px; margin-top: 16px; position: relative; z-index: 1;
+  }
+  .patient-hero .stat-item { text-align: center; }
+  .patient-hero .stat-num { font-size: 22px; font-weight: 600; }
+  .patient-hero .stat-lbl { font-size: 10px; opacity: 0.75; }
+  .stat-divider { width: 1px; background: rgba(255,255,255,0.25); }
+
+  /* ── QUICK ACTIONS ── */
+  .quick-actions {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin: 0 16px 16px; padding: 0;
+  }
+  .quick-btn {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px 12px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    cursor: pointer; transition: all 0.18s; box-shadow: var(--shadow);
+  }
+  .quick-btn:active { transform: scale(0.97); }
+  .quick-btn .qb-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; font-size: 17px;
+  }
+  .quick-btn .qb-lbl { font-size: 13px; font-weight: 500; color: var(--text); }
+
+  /* ── REMINDER CARD ── */
+  .reminder-card {
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .rem-icon {
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+  }
+  .rem-body { flex: 1; }
+  .rem-title { font-weight: 500; font-size: 15px; }
+  .rem-time  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .rem-type  { font-size: 11px; font-weight: 500; margin-top: 5px; display: inline-block; padding: 2px 8px; border-radius: 20px; }
+  .pill-med    { background: var(--lavender-lt); color: var(--lavender-dk); }
+  .pill-meal   { background: var(--mint-lt);     color: #0F6E56; }
+  .pill-appt   { background: var(--sky-lt);      color: #185FA5; }
+  .pill-custom { background: var(--amber-lt);    color: #854F0B; }
+  .rem-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .rem-btn {
+    flex: 1; padding: 7px 0; border-radius: 8px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--bg); cursor: pointer;
+    transition: background 0.15s; color: var(--text);
+  }
+  .rem-btn.done { background: var(--mint-lt); border-color: var(--mint); color: #0F6E56; }
+  .rem-btn.snooze { background: var(--amber-lt); border-color: var(--amber); color: #854F0B; }
+  .status-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+    margin-left: auto; flex-shrink: 0;
+  }
+  .status-pending   { background: var(--amber-lt); color: #854F0B; }
+  .status-completed { background: var(--mint-lt);  color: #0F6E56; }
+  .status-missed    { background: var(--coral-lt); color: #993C1D; }
+
+  /* ── VISITOR CARD ── */
+  .visitor-card {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .vis-avatar {
+    width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 17px;
+  }
+  .vis-body { flex: 1; }
+  .vis-name { font-weight: 500; font-size: 15px; }
+  .vis-rel  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .vis-photos { font-size: 11px; margin-top: 4px; color: var(--muted); }
+  .add-photo-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1px dashed var(--lavender); color: var(--lavender);
+    background: var(--lavender-lt); font-size: 18px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+
+  /* ── FACE RECOGNITION ── */
+  .face-zone {
+    margin: 16px; border-radius: var(--radius);
+    border: 2px dashed var(--lavender); padding: 32px 20px;
+    text-align: center; cursor: pointer;
+    background: var(--lavender-lt); transition: background 0.2s;
+    position: relative;
+  }
+  .face-zone:active { background: #d8d4f5; }
+  .face-zone .camera-icon { font-size: 48px; }
+  .face-zone h3 { font-family: var(--serif); font-size: 18px; margin-top: 10px; color: var(--lavender-dk); }
+  .face-zone p  { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .file-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+  .recognize-result {
+    margin: 0 16px 12px;
+    border-radius: var(--radius); padding: 16px;
+    background: var(--mint-lt); border: 1px solid var(--mint);
+    display: none;
+  }
+  .recognize-result.show { display: block; }
+  .rec-who { font-family: var(--serif); font-size: 20px; color: #085041; }
+  .rec-rel { font-size: 13px; color: #0F6E56; margin-top: 3px; }
+  .rec-conf { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* ── LOGS ── */
+  .log-item {
+    display: flex; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+  }
+  .log-event { font-size: 13px; font-weight: 500; }
+  .log-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .log-time   { font-size: 11px; color: var(--hint); margin-top: 2px; }
+
+  /* ── DASHBOARD STATS ── */
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin: 0 16px 16px;
+  }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 14px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .val { font-family: var(--serif); font-size: 28px; color: var(--text); }
+  .stat-card .lbl { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .stat-card .icon-row { font-size: 18px; margin-bottom: 8px; }
+
+  /* ── VOICE PANEL ── */
+  .voice-panel {
+    margin: 16px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .mic-btn {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--lavender); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px; margin: 0 auto 16px; color: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(123,111,212,0.35);
+  }
+  .mic-btn:active { transform: scale(0.93); box-shadow: 0 2px 8px rgba(123,111,212,0.25); }
+  .mic-btn.listening {
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 4px 16px rgba(123,111,212,0.35); }
+    50%      { box-shadow: 0 4px 28px rgba(123,111,212,0.7); transform: scale(1.06); }
+  }
+  .voice-commands {
+    margin-top: 16px; text-align: left;
+  }
+  .voice-cmd {
+    padding: 10px 12px; border-radius: var(--radius-sm);
+    background: var(--bg); font-size: 13px; margin-bottom: 6px;
+    color: var(--muted); display: flex; align-items: center; gap: 8px;
+  }
+  .voice-cmd span { color: var(--text); font-weight: 500; }
+
+  /* ── FORM ELEMENTS ── */
+  .form-group { margin: 0 16px 12px; }
+  .form-group label { font-size: 12px; font-weight: 500; color: var(--muted); display: block; margin-bottom: 5px; }
+  .form-input {
+    width: 100%; padding: 11px 14px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--card);
+    font-family: var(--font); font-size: 14px; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--lavender); }
+  select.form-input { appearance: none; }
+
+  .primary-btn {
+    width: calc(100% - 32px); margin: 8px 16px;
+    padding: 14px; border-radius: var(--radius-sm);
+    background: var(--lavender); color: #fff;
+    border: none; font-family: var(--font); font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: background 0.2s, transform 0.15s;
+  }
+  .primary-btn:active { background: var(--lavender-dk); transform: scale(0.98); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(28,27,46,0.55);
+    z-index: 200; display: none; align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--surface); border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 420px; padding: 20px 0 32px;
+    animation: slide-up 0.28s ease;
+  }
+  @keyframes slide-up {
+    from { transform: translateY(60px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .modal-handle {
+    width: 38px; height: 4px; background: var(--border);
+    border-radius: 4px; margin: 0 auto 16px;
+  }
+  .modal-title {
+    font-family: var(--serif); font-size: 20px; padding: 0 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-body { padding-top: 14px; }
+  .close-modal {
+    position: absolute; top: 16px; right: 20px;
+    font-size: 22px; cursor: pointer; color: var(--muted);
+    background: none; border: none; line-height: 1;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: calc(var(--bottom-nav) + 12px); left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--text); color: #fff; padding: 10px 20px;
+    border-radius: 24px; font-size: 13px; white-space: nowrap;
+    opacity: 0; transition: all 0.3s; z-index: 300; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty-state .big-icon { font-size: 50px; margin-bottom: 12px; }
+  .empty-state h3 { font-family: var(--serif); font-size: 18px; color: var(--text); }
+  .empty-state p  { font-size: 13px; margin-top: 6px; }
+
+  /* ── SETTINGS ── */
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-lbl { font-size: 14px; font-weight: 500; }
+  .setting-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .toggle {
+    width: 46px; height: 26px; border-radius: 13px;
+    background: var(--hint); position: relative; cursor: pointer;
+    transition: background 0.25s; flex-shrink: 0;
+  }
+  .toggle.on { background: var(--lavender); }
+  .toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 20px; height: 20px; border-radius: 50%; background: #fff;
+    transition: left 0.25s; box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  }
+  .toggle.on::after { left: 23px; }
+
+  /* ── SEARCH BAR ── */
+  .search-bar {
+    margin: 12px 16px 4px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 0 12px;
+  }
+  .search-bar input {
+    flex: 1; padding: 10px 0; border: none; background: none;
+    font-family: var(--font); font-size: 14px; color: var(--text); outline: none;
+  }
+  .search-icon { font-size: 16px; color: var(--hint); }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <div>
+    <div class="topbar-title">ForgetMeNot</div>
+    <div class="topbar-sub" id="topbar-patient">Loading patient…</div>
+  </div>
+  <div class="avatar" id="avatar-btn" onclick="showScreen('settings')">SA</div>
+</div>
+
+<!-- ═══════════════ SCREEN: DASHBOARD ═══════════════ -->
+<div class="screen active" id="screen-dashboard">
+  <div class="patient-hero">
+    <div class="name" id="hero-name">Sadia Shakoor</div>
+    <div class="info" id="hero-info">Age 65 &nbsp;·&nbsp; Patient</div>
+    <div class="stats">
+      <div class="stat-item"><div class="stat-num" id="stat-pending">3</div><div class="stat-lbl">Pending</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-num" id="stat-done">5</div><div class="stat-lbl">Done Today</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-num" id="stat-visitors">4</div><div class="stat-lbl">Visitors</div></div>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <button class="quick-btn" onclick="openModal('modal-add-reminder')">
+      <div class="qb-icon" style="background:var(--lavender-lt)">⏰</div>
+      <div class="qb-lbl">Add Reminder</div>
+    </button>
+    <button class="quick-btn" onclick="showScreen('face')">
+      <div class="qb-icon" style="background:var(--mint-lt)">📷</div>
+      <div class="qb-lbl">Recognize Face</div>
+    </button>
+    <button class="quick-btn" onclick="showScreen('voice')">
+      <div class="qb-icon" style="background:var(--sky-lt)">🎙️</div>
+      <div class="qb-lbl">Voice Assistant</div>
+    </button>
+    <button class="quick-btn" onclick="showScreen('visitors')">
+      <div class="qb-icon" style="background:var(--amber-lt)">👥</div>
+      <div class="qb-lbl">Manage Visitors</div>
+    </button>
+  </div>
+
+  <div class="section-hd">
+    <h2>Today's Reminders</h2>
+    <span class="badge-count" id="dash-rem-count">3</span>
+  </div>
+  <div id="dash-reminders-list"></div>
+
+  <div class="section-hd" style="margin-top:4px"><h2>Recent Activity</h2></div>
+  <div class="card" id="activity-card">
+    <div id="activity-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: REMINDERS ═══════════════ -->
+<div class="screen" id="screen-reminders">
+  <div class="section-hd">
+    <h2>Reminders</h2>
+    <button class="badge-count" style="cursor:pointer;border:none;font-size:12px;padding:4px 10px;" onclick="openModal('modal-add-reminder')">+ Add</button>
+  </div>
+
+  <div style="display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;scrollbar-width:none;">
+    <button class="filter-btn active-filter" data-filter="all" onclick="filterReminders('all',this)">All</button>
+    <button class="filter-btn" data-filter="pending" onclick="filterReminders('pending',this)">Pending</button>
+    <button class="filter-btn" data-filter="completed" onclick="filterReminders('completed',this)">Done</button>
+    <button class="filter-btn" data-filter="missed" onclick="filterReminders('missed',this)">Missed</button>
+  </div>
+
+  <div id="reminders-list"></div>
+</div>
+
+<style>
+  .filter-btn {
+    padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border); background: var(--card); color: var(--muted);
+    cursor: pointer; white-space: nowrap; font-family: var(--font);
+    transition: all 0.18s;
+  }
+  .filter-btn.active-filter {
+    background: var(--lavender); color: #fff; border-color: var(--lavender);
+  }
+</style>
+
+<!-- ═══════════════ SCREEN: FACE RECOGNITION ═══════════════ -->
+<div class="screen" id="screen-face">
+  <div class="section-hd"><h2>Face Recognition</h2></div>
+
+  <label class="face-zone" id="face-drop-zone">
+    <input type="file" accept="image/*" capture="environment" class="file-input" id="face-file-input" onchange="handleFaceUpload(this)">
+    <div class="camera-icon" id="face-zone-icon">📷</div>
+    <h3 id="face-zone-title">Take or upload a photo</h3>
+    <p id="face-zone-sub">Point camera at a visitor to identify them</p>
+  </label>
+
+  <div class="recognize-result" id="rec-result">
+    <div class="rec-who" id="rec-name">–</div>
+    <div class="rec-rel" id="rec-rel">–</div>
+    <div class="rec-conf" id="rec-conf">Similarity: –</div>
+  </div>
+
+  <div class="section-hd" style="margin-top:8px"><h2>How it works</h2></div>
+  <div class="card">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--lavender-lt);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--lavender-dk);flex-shrink:0;">1</div>
+        <div><div style="font-weight:500;font-size:14px;">Register Visitors</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Add visitor names, relationship & photos in Visitors tab</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--lavender-lt);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--lavender-dk);flex-shrink:0;">2</div>
+        <div><div style="font-weight:500;font-size:14px;">Capture a Photo</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Use the camera above to photograph the visitor</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--lavender-lt);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--lavender-dk);flex-shrink:0;">3</div>
+        <div><div style="font-weight:500;font-size:14px;">Instant Identification</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">AI compares face embeddings and announces the name via TTS</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: VISITORS ═══════════════ -->
+<div class="screen" id="screen-visitors">
+  <div class="section-hd">
+    <h2>Visitors</h2>
+    <button class="badge-count" style="cursor:pointer;border:none;font-size:12px;padding:4px 10px;" onclick="openModal('modal-add-visitor')">+ Add</button>
+  </div>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Search visitors…" oninput="searchVisitors(this.value)">
+  </div>
+  <div id="visitors-list" style="margin-top:8px;"></div>
+</div>
+
+<!-- ═══════════════ SCREEN: VOICE ═══════════════ -->
+<div class="screen" id="screen-voice">
+  <div class="section-hd"><h2>Voice Assistant</h2></div>
+
+  <div class="voice-panel">
+    <button class="mic-btn" id="mic-btn" onclick="toggleVoice()">🎙️</button>
+    <div style="font-weight:500;font-size:15px;" id="voice-status">Tap to speak</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="voice-transcript"></div>
+  </div>
+
+  <div class="section-hd"><h2>Voice commands</h2></div>
+  <div class="card">
+    <div class="voice-commands">
+      <div class="voice-cmd">🕐 <span>"What time is it?"</span></div>
+      <div class="voice-cmd">📅 <span>"What is today's date?"</span></div>
+      <div class="voice-cmd">⏰ <span>"What are my reminders?"</span></div>
+      <div class="voice-cmd">📞 <span>"Call my caregiver"</span></div>
+      <div class="voice-cmd">❓ <span>"Help" / "Who are you?"</span></div>
+    </div>
+  </div>
+
+  <div class="section-hd"><h2>Text to Speech</h2></div>
+  <div class="form-group">
+    <label>Type any message to speak aloud</label>
+    <textarea class="form-input" id="tts-text" rows="3" placeholder="e.g. It is time to take your medication…"></textarea>
+  </div>
+  <div style="display:flex;gap:8px;margin:0 16px;">
+    <button class="primary-btn" style="margin:0;flex:1;" onclick="playTTS()">🔊 Speak</button>
+    <button class="primary-btn" style="margin:0;width:46px;background:var(--bg);color:var(--lavender);border:1px solid var(--border);" id="lang-toggle" onclick="toggleLang()" title="Switch language">🇵🇰</button>
+  </div>
+  <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:8px;" id="lang-label">Language: English</div>
+</div>
+
+<!-- ═══════════════ SCREEN: SETTINGS ═══════════════ -->
+<div class="screen" id="screen-settings">
+  <div class="section-hd"><h2>Settings</h2></div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+      <div class="avatar" style="width:56px;height:56px;font-size:20px;">SA</div>
+      <div>
+        <div style="font-weight:500;font-size:16px;">Sadia Shakoor</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">Patient ID: demo-001</div>
+      </div>
+    </div>
+    <div class="setting-row" style="margin-top:4px;">
+      <div><div class="setting-lbl">Language</div><div class="setting-sub">TTS voice language</div></div>
+      <select class="form-input" style="width:120px;" id="lang-select" onchange="updateLangSetting(this.value)">
+        <option value="en">English</option>
+        <option value="ur">اردو</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-lbl">Auto Recognition</div><div class="setting-sub">Recognize faces automatically</div></div>
+      <div class="toggle on" id="toggle-auto" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-lbl">Recognition Cooldown</div><div class="setting-sub">Seconds before re-announcing</div></div>
+      <select class="form-input" style="width:80px;">
+        <option>30s</option>
+        <option selected>60s</option>
+        <option>120s</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <div><div class="setting-lbl">Snooze Duration</div><div class="setting-sub">Minutes to snooze a reminder</div></div>
+      <select class="form-input" style="width:80px;">
+        <option>5 min</option>
+        <option>10 min</option>
+        <option>15 min</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-hd" style="margin-top:4px;"><h2>About</h2></div>
+  <div class="card" style="font-size:13px;color:var(--muted);line-height:1.7;">
+    <strong style="color:var(--text);">ForgetMeNot v1.0</strong><br>
+    Alzheimer's Assistive App · FYP COMSATS Lahore<br><br>
+    <strong style="color:var(--text);">Team:</strong><br>
+    Sadia Shakoor (SP23-BAI-047) — Group Leader<br>
+    Mutawiffah Mudassar Khan (SP23-BAI-044)<br>
+    Wajeeha Aslam (SP23-BAI-054)<br><br>
+    <strong style="color:var(--text);">Supervisors:</strong> Dr. Ashfaq Ahmed · Ms. Fareeha Iftikhar
+  </div>
+
+  <div style="text-align:center;font-size:12px;color:var(--hint);padding:16px;">
+    API: <code id="api-url-display" style="font-size:11px;background:var(--lavender-lt);padding:2px 6px;border-radius:4px;color:var(--lavender-dk);">same as this page</code>
+  </div>
+</div>
+
+<!-- ═══════════════ BOTTOM NAV ═══════════════ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-screen="dashboard" onclick="showScreen('dashboard')">
+    <span class="nav-icon">🏠</span>Dashboard
+  </button>
+  <button class="nav-item" data-screen="reminders" onclick="showScreen('reminders')">
+    <span class="nav-icon">⏰</span>Reminders
+  </button>
+  <button class="nav-item" data-screen="face" onclick="showScreen('face')">
+    <span class="nav-icon">👁️</span>Recognize
+  </button>
+  <button class="nav-item" data-screen="visitors" onclick="showScreen('visitors')">
+    <span class="nav-icon">👥</span>Visitors
+  </button>
+  <button class="nav-item" data-screen="settings" onclick="showScreen('settings')">
+    <span class="nav-icon">⚙️</span>Settings
+  </button>
+</nav>
+
+<!-- ═══════════════ MODAL: ADD REMINDER ═══════════════ -->
+<div class="modal-overlay" id="modal-add-reminder" onclick="closeModalOutside(event,'modal-add-reminder')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="close-modal" onclick="closeModal('modal-add-reminder')">✕</button>
+    <div class="modal-title">New Reminder</div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" class="form-input" id="rem-title" placeholder="e.g. Take blood pressure medication">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select class="form-input" id="rem-type">
+          <option value="medication">💊 Medication</option>
+          <option value="meal">🍽️ Meal</option>
+          <option value="appointment">🏥 Appointment</option>
+          <option value="custom">📝 Custom</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date & Time</label>
+        <input type="datetime-local" class="form-input" id="rem-time">
+      </div>
+      <div class="form-group">
+        <label>Repeat</label>
+        <select class="form-input" id="rem-repeat">
+          <option value="one-time">One-time</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Voice Message (optional)</label>
+        <input type="text" class="form-input" id="rem-voice" placeholder="e.g. It is time to take your medication">
+      </div>
+      <button class="primary-btn" onclick="addReminder()">Save Reminder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: ADD VISITOR ═══════════════ -->
+<div class="modal-overlay" id="modal-add-visitor" onclick="closeModalOutside(event,'modal-add-visitor')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="close-modal" onclick="closeModal('modal-add-visitor')">✕</button>
+    <div class="modal-title">Register Visitor</div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" class="form-input" id="vis-name" placeholder="e.g. Ahmed Khan">
+      </div>
+      <div class="form-group">
+        <label>Relationship</label>
+        <select class="form-input" id="vis-rel">
+          <option>Son</option>
+          <option>Daughter</option>
+          <option>Husband</option>
+          <option>Wife</option>
+          <option>Sibling</option>
+          <option>Doctor</option>
+          <option>Caregiver</option>
+          <option>Friend</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Photo (optional)</label>
+        <input type="file" accept="image/*" class="form-input" id="vis-photo" style="padding:8px;">
+      </div>
+      <button class="primary-btn" onclick="addVisitor()">Register Visitor</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+/** Same-origin when served from FastAPI; fallback for file:// or dev tools */
+const API = (() => {
+  try {
+    const o = window.location.origin;
+    if (o && o.startsWith('http')) return o;
+  } catch (e) {}
+  return 'http://127.0.0.1:8000';
+})();
+if (document.getElementById('api-url-display')) {
+  document.getElementById('api-url-display').textContent = API;
+}
+const PATIENT_ID = 'demo-001';
+
+// ── DEMO DATA ──────────────────────────────────────────────────────────────────
+let reminders = [
+  { reminder_id:'r1', title:'Take blood pressure medication', reminder_type:'medication', scheduled_time: today('09:00'), repeat_option:'daily', status:'completed', voice_message:'Time for your morning medication' },
+  { reminder_id:'r2', title:'Breakfast', reminder_type:'meal', scheduled_time: today('08:30'), repeat_option:'daily', status:'completed', voice_message:'' },
+  { reminder_id:'r3', title:'Doctor appointment - Dr. Ashfaq', reminder_type:'appointment', scheduled_time: today('11:00'), repeat_option:'one-time', status:'pending', voice_message:'Your doctor appointment is in 30 minutes' },
+  { reminder_id:'r4', title:'Evening walk', reminder_type:'custom', scheduled_time: today('17:00'), repeat_option:'daily', status:'pending', voice_message:'' },
+  { reminder_id:'r5', title:'Take evening medication', reminder_type:'medication', scheduled_time: today('20:00'), repeat_option:'daily', status:'pending', voice_message:'Time for your evening medication' },
+  { reminder_id:'r6', title:'Lunch', reminder_type:'meal', scheduled_time: today('13:00'), repeat_option:'daily', status:'missed', voice_message:'' },
+];
+
+let visitors = [
+  { visitor_id:'v1', name:'Ahmed Shakoor', relationship:'Son', photos:2, color:'#7B6FD4', initials:'AS' },
+  { visitor_id:'v2', name:'Dr. Wajeeha', relationship:'Doctor', photos:1, color:'#2DB891', initials:'DW' },
+  { visitor_id:'v3', name:'Mutawiffah Khan', relationship:'Caregiver', photos:3, color:'#E8972A', initials:'MK' },
+  { visitor_id:'v4', name:'Ayesha Bibi', relationship:'Daughter', photos:2, color:'#3B95D9', initials:'AB' },
+];
+
+let logs = [
+  { event_type:'reminder_triggered', event_detail:'Reminder: Take blood pressure medication', result:'triggered', timestamp: ts('08:58') },
+  { event_type:'face_recognition', event_detail:'Visitor recognized: Ahmed Shakoor', result:'success', timestamp: ts('09:45') },
+  { event_type:'reminder_status', event_detail:'Reminder: Take blood pressure medication marked completed', result:'completed', timestamp: ts('09:01') },
+  { event_type:'voice_command', event_detail:'Command: what time is it', result:'answered', timestamp: ts('10:12') },
+  { event_type:'reminder_triggered', event_detail:'Reminder: Lunch', result:'missed', timestamp: ts('13:00') },
+];
+
+function today(time) {
+  const d = new Date(); const ds = d.toISOString().split('T')[0];
+  return `${ds}T${time}:00`;
+}
+function ts(time) {
+  const d = new Date(); const ds = d.toISOString().split('T')[0];
+  return `${ds}T${time}:00`;
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  const navBtn = document.querySelector(`.nav-item[data-screen="${id}"]`);
+  if (navBtn) navBtn.classList.add('active');
+  renderScreen(id);
+}
+
+function renderScreen(id) {
+  if (id === 'dashboard')  renderDashboard();
+  if (id === 'reminders')  renderReminders('all');
+  if (id === 'visitors')   renderVisitors();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const pending = reminders.filter(r => r.status === 'pending').length;
+  const done    = reminders.filter(r => r.status === 'completed').length;
+  document.getElementById('stat-pending').textContent  = pending;
+  document.getElementById('stat-done').textContent     = done;
+  document.getElementById('stat-visitors').textContent = visitors.length;
+  document.getElementById('dash-rem-count').textContent = pending;
+
+  const todayRems = reminders.filter(r => r.status === 'pending').slice(0,3);
+  document.getElementById('dash-reminders-list').innerHTML = todayRems.map(renderReminderCard).join('');
+
+  document.getElementById('activity-list').innerHTML = logs.slice(0,5).map(log => {
+    const colors = { reminder_triggered:'#7B6FD4', face_recognition:'#2DB891', voice_command:'#3B95D9', reminder_status:'#E8972A' };
+    const c = colors[log.event_type] || '#A8A5B8';
+    const t = log.timestamp ? log.timestamp.split('T')[1].slice(0,5) : '';
+    return `<div class="log-item">
+      <div class="log-dot" style="background:${c}"></div>
+      <div>
+        <div class="log-event">${log.event_detail}</div>
+        <div class="log-time">${t} · ${log.result}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── REMINDERS ─────────────────────────────────────────────────────────────────
+const typeIcon = { medication:'💊', meal:'🍽️', appointment:'🏥', custom:'📝' };
+const typeColors = { medication:'var(--lavender-lt)', meal:'var(--mint-lt)', appointment:'var(--sky-lt)', custom:'var(--amber-lt)' };
+const pillClass = { medication:'pill-med', meal:'pill-meal', appointment:'pill-appt', custom:'pill-custom' };
+
+function renderReminderCard(r, mini=false) {
+  const time = r.scheduled_time ? r.scheduled_time.split('T')[1]?.slice(0,5) : '';
+  const actions = r.status === 'pending' ? `
+    <div class="rem-actions">
+      <button class="rem-btn done" onclick="updateStatus('${r.reminder_id}','completed')">✓ Done</button>
+      <button class="rem-btn snooze" onclick="updateStatus('${r.reminder_id}','snoozed')">⏭ Snooze</button>
+      <button class="rem-btn" onclick="deleteReminder('${r.reminder_id}')">🗑</button>
+    </div>` : '';
+  return `<div class="card">
+    <div class="reminder-card">
+      <div class="rem-icon" style="background:${typeColors[r.reminder_type]||'var(--bg)'}">
+        ${typeIcon[r.reminder_type]||'📝'}
+      </div>
+      <div class="rem-body">
+        <div class="rem-title">${r.title}</div>
+        <div class="rem-time">${time} · ${r.repeat_option}</div>
+        <span class="rem-type ${pillClass[r.reminder_type]||''}">${r.reminder_type}</span>
+      </div>
+      <span class="status-badge status-${r.status}">${r.status}</span>
+    </div>
+    ${actions}
+  </div>`;
+}
+
+function renderReminders(filter) {
+  const list = filter === 'all' ? reminders : reminders.filter(r => r.status === filter);
+  if (!list.length) {
+    document.getElementById('reminders-list').innerHTML = `
+      <div class="empty-state"><div class="big-icon">⏰</div>
+      <h3>No reminders</h3><p>Tap + Add to create one</p></div>`;
+    return;
+  }
+  document.getElementById('reminders-list').innerHTML = list.map(r => renderReminderCard(r)).join('');
+}
+
+function filterReminders(f, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
+  btn.classList.add('active-filter');
+  renderReminders(f);
+}
+
+function updateStatus(id, status) {
+  const r = reminders.find(r => r.reminder_id === id);
+  if (r) r.status = status;
+  const activeScreen = document.querySelector('.screen.active').id.replace('screen-','');
+  renderScreen(activeScreen);
+  showToast(`Reminder marked as ${status}`);
+}
+
+function deleteReminder(id) {
+  reminders = reminders.filter(r => r.reminder_id !== id);
+  const activeScreen = document.querySelector('.screen.active').id.replace('screen-','');
+  renderScreen(activeScreen);
+  showToast('Reminder deleted');
+}
+
+function addReminder() {
+  const title = document.getElementById('rem-title').value.trim();
+  if (!title) { showToast('Please enter a title'); return; }
+  const newRem = {
+    reminder_id: 'r' + Date.now(),
+    title,
+    reminder_type: document.getElementById('rem-type').value,
+    scheduled_time: document.getElementById('rem-time').value || today('12:00'),
+    repeat_option: document.getElementById('rem-repeat').value,
+    voice_message: document.getElementById('rem-voice').value,
+    status: 'pending',
+  };
+  reminders.unshift(newRem);
+  logs.unshift({ event_type:'reminder_triggered', event_detail:`Reminder added: ${title}`, result:'created', timestamp: new Date().toISOString() });
+  closeModal('modal-add-reminder');
+  showToast('Reminder saved ✓');
+  renderDashboard();
+}
+
+// ── VISITORS ──────────────────────────────────────────────────────────────────
+const avatarColors = ['#7B6FD4','#2DB891','#E8972A','#3B95D9','#E05A44','#A855F7'];
+function renderVisitors(query='') {
+  const list = query ? visitors.filter(v => v.name.toLowerCase().includes(query.toLowerCase())) : visitors;
+  if (!list.length) {
+    document.getElementById('visitors-list').innerHTML = `
+      <div class="empty-state"><div class="big-icon">👥</div>
+      <h3>No visitors found</h3><p>Tap + Add to register one</p></div>`;
+    return;
+  }
+  document.getElementById('visitors-list').innerHTML = list.map(v => `
+    <div class="card">
+      <div class="visitor-card">
+        <div class="vis-avatar" style="background:${v.color}22;color:${v.color}">${v.initials}</div>
+        <div class="vis-body">
+          <div class="vis-name">${v.name}</div>
+          <div class="vis-rel">${v.relationship}</div>
+          <div class="vis-photos">📷 ${v.photos} photo${v.photos !== 1 ? 's' : ''} registered</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+          <div class="add-photo-btn" onclick="showToast('Photo upload: connect to backend')">+</div>
+          <div style="font-size:11px;color:var(--coral);cursor:pointer;" onclick="deleteVisitor('${v.visitor_id}')">Remove</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function searchVisitors(q) { renderVisitors(q); }
+
+function addVisitor() {
+  const name = document.getElementById('vis-name').value.trim();
+  if (!name) { showToast('Please enter a name'); return; }
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  const color = avatarColors[visitors.length % avatarColors.length];
+  visitors.push({
+    visitor_id: 'v' + Date.now(),
+    name, relationship: document.getElementById('vis-rel').value,
+    photos: 0, color, initials,
+  });
+  closeModal('modal-add-visitor');
+  showToast(`${name} registered ✓`);
+  renderVisitors();
+}
+
+function deleteVisitor(id) {
+  visitors = visitors.filter(v => v.visitor_id !== id);
+  renderVisitors();
+  showToast('Visitor removed');
+}
+
+// ── FACE RECOGNITION ──────────────────────────────────────────────────────────
+function handleFaceUpload(input) {
+  if (!input.files.length) return;
+  const zone = document.getElementById('face-drop-zone');
+  document.getElementById('face-zone-icon').textContent = '⏳';
+  document.getElementById('face-zone-title').textContent = 'Analyzing face…';
+  document.getElementById('face-zone-sub').textContent = 'Comparing with registered visitors';
+
+  setTimeout(() => {
+    const matched = visitors[Math.floor(Math.random() * visitors.length)];
+    const sim = (0.72 + Math.random() * 0.25).toFixed(2);
+    document.getElementById('face-zone-icon').textContent = '✅';
+    document.getElementById('face-zone-title').textContent = 'Face recognized!';
+    document.getElementById('face-zone-sub').textContent = 'Match found in visitor database';
+    const res = document.getElementById('rec-result');
+    document.getElementById('rec-name').textContent = matched.name;
+    document.getElementById('rec-rel').textContent = matched.relationship;
+    document.getElementById('rec-conf').textContent = `Similarity score: ${sim} (threshold: 0.70)`;
+    res.classList.add('show');
+    logs.unshift({ event_type:'face_recognition', event_detail:`Visitor recognized: ${matched.name}`, result:'success', timestamp: new Date().toISOString() });
+    showToast(`Recognized: ${matched.name}`);
+  }, 1800);
+}
+
+// ── VOICE ─────────────────────────────────────────────────────────────────────
+let listening = false;
+let lang = 'en';
+
+function toggleVoice() {
+  listening = !listening;
+  const btn = document.getElementById('mic-btn');
+  const status = document.getElementById('voice-status');
+  const transcript = document.getElementById('voice-transcript');
+  if (listening) {
+    btn.classList.add('listening');
+    status.textContent = 'Listening…';
+    transcript.textContent = '';
+    setTimeout(() => {
+      const demo = ['What are my reminders?','What time is it?','What is today\'s date?'][Math.floor(Math.random()*3)];
+      transcript.textContent = `"${demo}"`;
+      setTimeout(() => {
+        handleVoiceCommand(demo);
+        btn.classList.remove('listening');
+        status.textContent = 'Tap to speak';
+        listening = false;
+      }, 800);
+    }, 2000);
+  } else {
+    btn.classList.remove('listening');
+    status.textContent = 'Tap to speak';
+  }
+}
+
+function handleVoiceCommand(cmd) {
+  const c = cmd.toLowerCase();
+  let response = '';
+  if (c.includes('time'))     response = `It is ${new Date().toLocaleTimeString('en-PK',{hour:'2-digit',minute:'2-digit'})}.`;
+  else if (c.includes('date')) response = `Today is ${new Date().toLocaleDateString('en-PK',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}.`;
+  else if (c.includes('reminder')) {
+    const p = reminders.filter(r => r.status === 'pending');
+    response = p.length ? `You have ${p.length} pending reminders. Next: ${p[0].title}.` : 'You have no pending reminders.';
+  }
+  else response = 'I am ForgetMeNot, your memory assistant. I can remind you of medications, recognize visitors, and answer questions.';
+  document.getElementById('voice-transcript').textContent = response;
+  logs.unshift({ event_type:'voice_command', event_detail:`Command: ${cmd}`, result:'answered', timestamp: new Date().toISOString() });
+  showToast('Response played via TTS');
+}
+
+function playTTS() {
+  const text = document.getElementById('tts-text').value.trim();
+  if (!text) { showToast('Please enter text to speak'); return; }
+  showToast(`🔊 Speaking: "${text.slice(0,30)}…"`);
+  logs.unshift({ event_type:'tts_generated', event_detail:`TTS: ${text.slice(0,40)}`, result:'played', timestamp: new Date().toISOString() });
+}
+
+function toggleLang() {
+  lang = lang === 'en' ? 'ur' : 'en';
+  document.getElementById('lang-toggle').textContent = lang === 'en' ? '🇵🇰' : '🇬🇧';
+  document.getElementById('lang-label').textContent = lang === 'en' ? 'Language: English' : 'زبان: اردو';
+  showToast(lang === 'en' ? 'Language: English' : 'زبان: اردو');
+}
+
+function updateLangSetting(v) { lang = v; showToast(`Language set to ${v === 'en' ? 'English' : 'Urdu'}`); }
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+function openModal(id) {
+  if (id === 'modal-add-reminder') {
+    const now = new Date(); now.setMinutes(0,0,0);
+    now.setHours(now.getHours()+1);
+    document.getElementById('rem-time').value = now.toISOString().slice(0,16);
+  }
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e, id) { if (e.target.id === id) closeModal(id); }
+
+// ── TOAST ──────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('topbar-patient').textContent = 'Patient: Sadia Shakoor';
+renderDashboard();
+</script>
+</body>
+</html>
