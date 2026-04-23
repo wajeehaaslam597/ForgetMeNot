@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ForgetMeNot Local Platform</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; padding: 24px; background: #f5f7fb; color: #111827; }
+      h1 { margin-top: 0; }
+      .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+      .card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+      button { border: 0; border-radius: 8px; padding: 10px 14px; background: #2563eb; color: #fff; cursor: pointer; }
+      button:hover { background: #1d4ed8; }
+      code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; }
+      pre { background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 8px; overflow-x: auto; min-height: 120px; }
+      .hint { color: #4b5563; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <h1>ForgetMeNot Local Platform</h1>
+    <p class="hint">This web frontend is for validating local infrastructure and API connectivity before full module UI implementation.</p>
+    <div class="grid">
+      <section class="card">
+        <h2>Core Health</h2>
+        <p>GET <code>/api/</code></p>
+        <button onclick="callApi('/api/')">Check API Root</button>
+      </section>
+      <section class="card">
+        <h2>Container Dependency Health</h2>
+        <p>GET <code>/api/health/services</code></p>
+        <button onclick="callApi('/api/health/services')">Check Services</button>
+      </section>
+      <section class="card">
+        <h2>Patients Endpoint</h2>
+        <p>GET <code>/api/patients</code></p>
+        <button onclick="callApi('/api/patients')">List Patients</button>
+      </section>
+      <section class="card">
+        <h2>Swagger Docs</h2>
+        <p>Open interactive backend docs.</p>
+        <button onclick="window.open('/api/docs', '_blank')">Open /api/docs</button>
+      </section>
+    </div>
+    <h2>Response</h2>
+    <pre id="output">No request sent yet.</pre>
+    <script>
+      async function callApi(path) {
+        const output = document.getElementById("output");
+        output.textContent = "Loading...";
+        try {
+          const response = await fetch(path);
+          const body = await response.json();
+          output.textContent = JSON.stringify({ status: response.status, body }, null, 2);
+        } catch (error) {
+          output.textContent = "Request failed: " + error.message;
+        }
+      }
+    </script>
+  </body>
+  </html>

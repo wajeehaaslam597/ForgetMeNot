@@ -3,7 +3,7 @@
 
 ---
 
-## 🚀 How to Run
+## 🚀 How to Run (Local Python)
 
 ```bash
 # 1. Install dependencies
@@ -15,6 +15,47 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 # 3. Open interactive API docs
 http://localhost:8000/docs
 ```
+
+---
+
+## 🐳 Docker Local Platform (Web + API + Data Services)
+
+This repository now includes a full local-first, open-source container stack:
+
+- Frontend container (simple validation web UI)
+- FastAPI backend container
+- PostgreSQL container
+- Qdrant vector database container
+- Redis container
+- MinIO object storage container
+- Nginx reverse proxy container
+
+### Start all containers
+
+```bash
+docker compose up --build -d
+```
+
+### Stop all containers
+
+```bash
+docker compose down
+```
+
+### Access points
+
+- Frontend + API gateway: `http://localhost:8080`
+- FastAPI Swagger: `http://localhost:8080/api/docs`
+- Qdrant API: `http://localhost:6333`
+- MinIO API: `http://localhost:9000`
+- MinIO Console: `http://localhost:9001`
+- PostgreSQL: `localhost:5432`
+- Redis: `localhost:6379`
+
+### Health checks
+
+- API root: `GET http://localhost:8080/api/`
+- Service health (all containers reachable from backend): `GET http://localhost:8080/api/health/services`
 
 ---
 

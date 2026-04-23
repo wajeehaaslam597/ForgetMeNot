@@ -1,0 +1,11 @@
+.git
+.idea
+.vscode
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.venv
+venv
+forgetmenot_app
+agent-transcripts
