@@ -11,9 +11,7 @@ apscheduler==3.10.4
 # TTS — Microsoft Neural Voices, no extra system install needed on Windows
 edge-tts==6.1.9
 
-# Face Recognition
-deepface==0.0.99
-opencv-python==4.10.0.84
+# Face Recognition (optional for full ML pipeline; not required for core API startup)
 numpy==1.26.4
 
 # Database (built-in SQLite — no install needed)
